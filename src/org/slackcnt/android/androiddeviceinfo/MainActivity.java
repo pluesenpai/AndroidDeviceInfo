@@ -2,9 +2,9 @@ package org.slackcnt.android.androiddeviceinfo;
 
 import android.app.Activity;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.Menu;
 import android.widget.TextView;
 
 public class MainActivity extends Activity
@@ -17,25 +17,49 @@ public class MainActivity extends Activity
 
 		TextView textView = (TextView) findViewById(R.id.info_label);
 
-		DisplayMetrics dm = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		DisplayMetrics dm = getDisplayMetrics();
+
 		StringBuilder stringBuilder = new StringBuilder();
-
-		stringBuilder.append("Width: ");
-		stringBuilder.append(dm.widthPixels);
-		stringBuilder.append(" px\n");
-
-		stringBuilder.append("Height: ");
-		stringBuilder.append(dm.heightPixels);
-		stringBuilder.append(" px\n");
+		printResolution(stringBuilder, dm);
+		printScreenDensity(stringBuilder, dm);
+		printScreenSize(stringBuilder);
 
 		stringBuilder.append("\n");
 
+		printSystemInfo(stringBuilder);
+
+		stringBuilder.append("\n");
+
+		printDeviceInfo(stringBuilder);
+
+		textView.setText(stringBuilder.toString());
+	}
+
+	private DisplayMetrics getDisplayMetrics()
+	{
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		return dm;
+	}
+
+	private void printResolution(StringBuilder stringBuilder, DisplayMetrics dm)
+	{
+		stringBuilder.append("Resolution: ");
+		stringBuilder.append(dm.widthPixels);
+		stringBuilder.append(" x ");
+
+		stringBuilder.append(dm.heightPixels);
+		stringBuilder.append(" px\n");
+	}
+
+	private void printScreenDensity(StringBuilder stringBuilder,
+			DisplayMetrics dm)
+	{
 		stringBuilder.append("Density: ");
 		stringBuilder.append(dm.densityDpi);
-		stringBuilder.append(" dpi\n");
+		stringBuilder.append(" dpi");
 
-		stringBuilder.append("Density: ");
+		stringBuilder.append(" (");
 		switch(dm.densityDpi) {
 			case DisplayMetrics.DENSITY_LOW:
 				stringBuilder.append("ldpi");
@@ -56,10 +80,12 @@ public class MainActivity extends Activity
 				stringBuilder.append("tvdpi");
 				break;
 		}
-		stringBuilder.append("\n");
-		stringBuilder.append("\n");
+		stringBuilder.append(")\n");
+	}
 
-		stringBuilder.append("Screen: ");
+	private void printScreenSize(StringBuilder stringBuilder)
+	{
+		stringBuilder.append("Screen size: ");
 		if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE) {
 			stringBuilder.append("large");
 		} else if((getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_NORMAL) {
@@ -74,14 +100,21 @@ public class MainActivity extends Activity
 			stringBuilder.append("?");
 		}
 		stringBuilder.append("\n");
-
-		textView.setText(stringBuilder.toString());
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
+	private void printSystemInfo(StringBuilder stringBuilder)
 	{
-		getMenuInflater().inflate(R.menu.activity_main, menu);
-		return true;
+		stringBuilder
+				.append("Android version: " + Build.VERSION.RELEASE + "\n");
+		stringBuilder.append("SDK: " + Build.VERSION.SDK);
+		stringBuilder.append("\n");
+	}
+
+	private void printDeviceInfo(StringBuilder stringBuilder)
+	{
+		stringBuilder.append("Board: " + Build.BOARD + "\n");
+		stringBuilder.append("Brand: " + Build.BRAND + "\n");
+		stringBuilder.append("Device: " + Build.DEVICE);
+		stringBuilder.append("\n");
 	}
 }
